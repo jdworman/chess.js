@@ -16,32 +16,39 @@
 //= require_tree .
 
 const boardSize = 400,
-      darkSqColor = "brown",
-      lightSqColor = "beige";
+	  darkSqColor = "brown",
+	  lightSqColor = "beige",
+      uiColor = "red",
+      pieces = {},
       moves = [],
       board = {};
-
-var canvas, ctx, width, height;
-
-document.addEventListener("DOMContentLoaded", init)
-
-function init() {
-  canvas = document.querySelector("canvas");
-  ctx = canvas.getContext("2d");
-  width = canvas.width = boardSize;
-  height = canvas.height = boardSize;
-  setup();
-  drawBoard();
-  drawPieces();
-}
-
+		
+var boardCanvas, boardCtx, uiCanvas, uiCtx, width, height,
+     
+		
+document.addEventListener("DOMContentLoaded", init);
+      
+      
+/* SETUP */	
+function init(){
+	boardCanvas = document.querySelector("canvas");
+  	uiCanvas = boardCanvas.nextElementSibling;
+	boardCtx = boardCanvas.getContext("2d");
+  	uiCtx = uiCanvas.getContext("2d");
+	width = boardCanvas.width = uiCanvas.width = boardSize;
+	height = boardCanvas.height = uiCanvas.height = boardSize;
+   
+  	setupPieces();
+  	setupBoard();
+	drawBoard();
+  	drawPieces();
+}   
 function setupPieces(){
-  //preload piece images
+	//preload piece images
 }
-
-function setup(){
-  let squareSize = boardSize/8;
-  board.a8 = { x: squareSize * 0, y: squareSize * 0, piece: "br" };
+function setupBoard(){
+  	let squareSize = boardSize/8;
+	board.a8 = { x: squareSize * 0, y: squareSize * 0, piece: "br" };
   	board.a7 = { x: squareSize * 0, y: squareSize * 1, piece: "bp" };
   	board.a6 = { x: squareSize * 0, y: squareSize * 2, piece: null };
   	board.a5 = { x: squareSize * 0, y: squareSize * 3, piece: null };
@@ -108,30 +115,29 @@ function setup(){
   	moves.length = 1; // empty out moves array
   	moves[0] = JSON.parse(JSON.stringify(board)); // deep copy of board
 }
-
-/* Drawing */
-function drawBoard() {
-  let squareSize = boardSize / 8,
-    isLightSq = true;
-  for (let x = 0; x < width; x += squareSize) {
-    for (let y = 0; y < height; y += squareSize) {
-      if (isLightSq) ctx.fillStyle = lightSqColor;
-      else ctx.fillStyle = darkSqColor;
-      ctx.fillRect(x, y, squareSize, squareSize);
-      isLightSq = !isLightSq;
-    }
-    isLightSq = !isLightSq
-  }
+      
+/* DRAWING */
+function drawBoard(){
+	let squareSize = boardSize/8,
+		isLightSq = true;
+	for (let x=0; x<width; x+=squareSize){
+		for (let y=0; y<height; y+=squareSize){
+			if (isLightSq) boardCtx.fillStyle = lightSqColor;
+			else boardCtx.fillStyle = darkSqColor;
+			boardCtx.fillRect(x, y, squareSize, squareSize);
+			isLightSq = !isLightSq;
+		}
+		isLightSq = !isLightSq;
+	}
 }
 function drawPieces(){
-  let lastPosition = moves[moves.length-1]; //get last element of moves array
-  boardCtx.fillStyle = "black"; // text placeholder
-  boardCTX.textBaseline="top"; // text placeholder
-  boardCTX.font="30px Verdana" // text placeholder
-  for (let square in lastPosition){ // iterate through the most recent game statement
-    if (lastPosition[square].piece){
-      boardCTX.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
+  	let lastPosition = moves[moves.length-1]; // get last element of moves array
+	boardCtx.fillStyle = "black"; // text placeholder
+  	boardCtx.textBaseline="top"; // text placeholder
+	boardCtx.font="30px Verdana"; // text placeholder
+	for (let square in lastPosition){ // iterate through the most recent game state
+    	if (lastPosition[square].piece){
+        	boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
+        }
     }
-
-  }
 }

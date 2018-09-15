@@ -24,7 +24,7 @@ const boardSize = 400,
       board = {};
 		
 var boardCanvas, boardCtx, uiCanvas, uiCtx, width, height,
-     
+    dragging = false, dragFrom, dragTo;
 		
 document.addEventListener("DOMContentLoaded", init);
       
@@ -115,6 +115,11 @@ function setupBoard(){
   	moves.length = 1; // empty out moves array
   	moves[0] = JSON.parse(JSON.stringify(board)); // deep copy of board
 }
+      
+      
+ 
+      
+ 
       
 /* DRAWING */
 function drawBoard(){

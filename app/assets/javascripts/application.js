@@ -32,6 +32,7 @@ function init() {
   height = canvas.height = boardSize;
   setup();
   drawBoard();
+  drawPieces();
 }
 
 function setupPieces(){
@@ -108,6 +109,7 @@ function setup(){
   	moves[0] = JSON.parse(JSON.stringify(board)); // deep copy of board
 }
 
+/* Drawing */
 function drawBoard() {
   let squareSize = boardSize / 8,
     isLightSq = true;
@@ -119,5 +121,17 @@ function drawBoard() {
       isLightSq = !isLightSq;
     }
     isLightSq = !isLightSq
+  }
+}
+function drawPieces(){
+  let lastPosition = moves[moves.length-1]; //get last element of moves array
+  boardCtx.fillStyle = "black"; // text placeholder
+  boardCTX.textBaseline="top"; // text placeholder
+  boardCTX.font="30px Verdana" // text placeholder
+  for (let square in lastPosition){ // iterate through the most recent game statement
+    if (lastPosition[square].piece){
+      boardCTX.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
+    }
+
   }
 }

@@ -37,7 +37,11 @@ function init(){
   	uiCtx = uiCanvas.getContext("2d");
 	width = boardCanvas.width = uiCanvas.width = boardSize;
 	height = boardCanvas.height = uiCanvas.height = boardSize;
-   
+  	//
+  	uiCanvas.addEventListener("mousedown", handleMousedown);
+  	uiCanvas.addEventListener("mousemove", handleMousemove);
+  	uiCanvas.addEventListener("mouseup", handleMouseup);
+  	//
   	setupPieces();
   	setupBoard();
 	drawBoard();
@@ -117,9 +121,109 @@ function setupBoard(){
 }
       
       
- 
-      
- 
+/* EVENT HANDLING */ 
+function handleMousedown(e){
+	if (dragFrom){
+    	dragging = true;
+    }
+}
+function handleMousemove(e){
+  	uiCtx.clearRect(0, 0, width, height);
+	if (dragging){
+    	handleDrag(e);
+    }
+  	else { // not dragging but hovering
+      	handleHover(e);
+    }
+}
+function handleDrag(e){
+  	let squareSize = boardSize/8,
+    	player = whoseTurn(), // "w" or "b"
+        lastPosition = moves[moves.length-1],
+        square = getSquareByXY(e.clientX, e.clientY); // find square from mousemove event object;
+	if (isValidMove(square)){
+      	//currently, you can move a piece onto ANY empty square (!lastPosition[square].piece) or an opponent's square (lastPosition[square].piece[0] !== player)
+        // if so, highlight square
+        uiCtx.lineWidth = 4;
+        uiCtx.strokeStyle = uiColor;
+        uiCtx.strokeRect(lastPosition[square].x + 2, lastPosition[square].y + 2, squareSize - 4, squareSize - 4);
+        // draw line from original square
+        uiCtx.lineWidth = 2;
+        uiCtx.beginPath();
+        let x1 = lastPosition[dragFrom].x + squareSize/2,
+            y1 = lastPosition[dragFrom].y + squareSize/2,
+            x2 = lastPosition[square].x + squareSize/2,
+            y2 = lastPosition[square].y + squareSize/2;
+        uiCtx.moveTo(x1, y1);
+        uiCtx.lineTo(x2, y2);
+        uiCtx.stroke();
+        dragTo = square;
+    }
+    else {
+        dragTo = null;
+    }
+}
+function handleHover(e){
+	let squareSize = boardSize/8,
+    	player = whoseTurn(), // "w" or "b"
+        lastPosition = moves[moves.length-1],
+        square = getSquareByXY(e.clientX, e.clientY); // find square from mousemove event object;
+  	// check if piece of player's color is on that square
+    if (lastPosition[square].piece && lastPosition[square].piece[0] === player){
+        // if so, highlight square
+        uiCtx.lineWidth = 4;
+        uiCtx.strokeStyle = uiColor;
+        uiCtx.strokeRect(lastPosition[square].x + 2, lastPosition[square].y + 2, squareSize - 4, squareSize - 4);
+        dragFrom = square;
+    }
+    else {
+        dragFrom = null;
+    }
+}
+function handleMouseup(e){
+	if (dragging){
+      	if (dragTo === null){ //nothing happens if player tries to move to square piece is alread on
+        	dragFrom = null;
+          	dragTo = null;
+          	dragging = false;
+          	return;
+        }
+    	// make player move...
+      	//change game state
+      	let lastPosition = moves[moves.length-1],
+        	newBoard = JSON.parse(JSON.stringify(lastPosition)),
+            piece = newBoard[dragFrom].piece;
+      	//check for castling
+      	newBoard = handleCastle(newBoard, piece, dragFrom, dragTo);
+      	//move piece
+      	newBoard[dragFrom].piece = null;
+      	newBoard[dragTo].piece = piece;
+      	//add another board to the moves array
+      	moves.push(newBoard);
+      	//update board/pieces display
+      	drawBoard();
+      	drawPieces();
+      	//reset drag variables
+      	dragFrom = null;
+      	dragTo = null;
+      	dragging = false;
+    }
+}
+         
+/* HELPERS */
+function whoseTurn(){
+  	// if even number of moves in moves array, it's black's turn, otherwise white's
+	return moves.length % 2 === 0 ? "b" : "w";
+}
+function getSquareByXY(x, y){
+	let squareSize = boardSize/8,
+  		lastPosition = moves[moves.length-1];
+  	for (let square in lastPosition){
+    	if (lastPosition[square].x <= x && lastPosition[square].x + squareSize >= x &&
+            lastPosition[square].y <= y && lastPosition[square].y + squareSize >= y) return square;
+    }
+}
+
       
 /* DRAWING */
 function drawBoard(){
